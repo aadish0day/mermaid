@@ -107,68 +107,11 @@ function App() {
     }
 
     try {
-      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const pngBlob = await convertSvgToPng(svgContent);
-
-      if (pngBlob) {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            'image/png': pngBlob,
-          }),
-        ]);
-        showNotification('Image copied to clipboard');
-      } else {
-        await navigator.clipboard.writeText(svgContent);
-        showNotification('SVG code copied to clipboard');
-      }
+      await navigator.clipboard.writeText(svgContent);
+      showNotification('SVG code copied to clipboard');
     } catch (err) {
-      try {
-        await navigator.clipboard.writeText(svgContent);
-        showNotification('SVG code copied to clipboard');
-      } catch {
-        showNotification('Failed to copy to clipboard', true);
-      }
+      showNotification('Failed to copy to clipboard', true);
     }
-  };
-
-  const convertSvgToPng = async (svgContent: string): Promise<Blob | null> => {
-    return new Promise((resolve) => {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(null);
-          return;
-        }
-
-        const img = new Image();
-        const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-        const url = URL.createObjectURL(svgBlob);
-
-        img.onload = () => {
-          canvas.width = img.width * 2;
-          canvas.height = img.height * 2;
-          ctx.scale(2, 2);
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0);
-          URL.revokeObjectURL(url);
-
-          canvas.toBlob((blob) => {
-            resolve(blob);
-          }, 'image/png');
-        };
-
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve(null);
-        };
-
-        img.src = url;
-      } catch {
-        resolve(null);
-      }
-    });
   };
 
   const showNotification = (message: string, isError = false) => {
