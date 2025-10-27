@@ -21,7 +21,7 @@ function App() {
 
   useEffect(() => {
     mermaid.initialize({
-      startOnLoad: true,
+      startOnLoad: false,
       theme: darkMode ? 'dark' : 'default',
       securityLevel: 'loose',
     });
@@ -50,6 +50,10 @@ function App() {
       }
     };
   }, [diagramCode, darkMode]);
+
+  useEffect(() => {
+    renderDiagram();
+  }, []);
 
   const renderDiagram = async () => {
     if (!diagramRef.current) return;
