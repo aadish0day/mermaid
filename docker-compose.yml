@@ -3,6 +3,9 @@ services:
     build:
       context: .
       target: dev
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     ports:
       - "5173:5173"
     volumes:
@@ -10,4 +13,9 @@ services:
       - /app/node_modules
     environment:
       - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    # Run as the non-root user so files written to the bind-mounted volume
+    # (node_modules, dist) are owned by your host user, not root.
+    # node:20-alpine ships a 'node' user with uid/gid 1000 by default.
+    user: "${UID:-1000}:${GID:-1000}"
     command: npm run dev -- --host 0.0.0.0
